@@ -7,5 +7,11 @@ load_dotenv()
 
 app = App(token=os.environ["SLACK_BOT_TOKEN"])
 
+@app.event("app_mention")
+def handle_mention(event, say):
+  user = event["user"]
+  thread_ts = event["ts"]
+  say(thread_ts=thread_ts, text=f"Hello <@{user}>!")
+
 if __name__ == "__main__":
   SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"]).start()
