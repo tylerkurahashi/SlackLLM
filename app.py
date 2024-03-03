@@ -42,6 +42,8 @@ class SlackStreamingCallbackHandler(BaseCallbackHandler):
     def __init__(self, channel, ts):
         self.channel = channel
         self.ts = ts
+        self.interval = CHAT_UPDATE_INTERVAL_SEC
+        self.update_count = 0
 
     def on_llm_new_token(self, token: str, **kwargs):
         self.message += token
@@ -53,8 +55,30 @@ class SlackStreamingCallbackHandler(BaseCallbackHandler):
                 channel=self.channel, ts=self.ts, text=f"{self.message}..."
             )
 
+            self.last_send_time = now
+            self.update_count += 1
+
+            if self.update_count / 10 > self.interval:
+                self.interval *= 2
+
     def on_llm_end(self, response: LLMResult, **kwargs: Any) -> Any:
-        app.client.chat_update(channel=self.channel, ts=self.ts, text=self.message)
+        message_context = (
+            "ChatGPT can make mistakes. Consider checking important information."
+        )
+        message_blocks = [
+            {"type": "section", "text": {"type": "mrkdwn", "text": self.message}},
+            {"type": "divider"},
+            {
+                "type": "context",
+                "elements": [{"type": "mrkdwn", "text": message_context}],
+            },
+        ]
+        app.client.chat_update(
+            channel=self.channel,
+            ts=self.ts,
+            text=self.message,
+            blocks=message_blocks,  # type: ignore
+        )
 
 
 app = App(
