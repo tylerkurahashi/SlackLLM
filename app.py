@@ -1,4 +1,6 @@
 import os
+import json
+import logging
 import re
 import time
 from typing import Any
@@ -12,6 +14,7 @@ from langchain.schema import HumanMessage, LLMResult, SystemMessage
 
 # from langchain.schema.output import ChatGenerationChunk, GenerationChunk
 from slack_bolt import App
+from slack_bolt.adapter.aws_lambda import SlackRequestHandler
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 from const import (
@@ -23,6 +26,13 @@ from const import (
 )
 
 load_dotenv()
+
+# logging
+SlackRequestHandler.clear_all_log_handlers()
+logging.basicConfig(
+    format="%(asctime)s  [%(levelname)s] %(message)s", level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
 
 class SlackStreamingCallbackHandler(BaseCallbackHandler):
@@ -54,7 +64,19 @@ app = App(
 )
 
 
-# @app.event("app_mention")
+def handler(event, context):
+    logger.info("handler called")
+    header = event["headers"]
+    logger.info(json.dumps(header))
+
+    if "x-slack-retry-num" in header:
+        logger.info("SKIP > x-slack-retry-num: %s", header["x-slack-retry-num"])
+        return 200
+
+    slack_handler = SlackRequestHandler(app)
+    return slack_handler.handle(event, context)
+
+
 def handle_mention(event, say):
     channel = event["channel"]
     thread_ts = event["ts"]
