@@ -1,29 +1,23 @@
-import os
 import json
 import logging
+import os
 import re
 import time
-from typing import Any
 from datetime import timedelta
+from typing import Any
 
 from dotenv import load_dotenv
-from langchain.chat_models import ChatOpenAI
 from langchain.callbacks.base import BaseCallbackHandler
+from langchain.chat_models import ChatOpenAI
 from langchain.memory import MomentoChatMessageHistory
 from langchain.schema import HumanMessage, LLMResult, SystemMessage
-
 # from langchain.schema.output import ChatGenerationChunk, GenerationChunk
 from slack_bolt import App
 from slack_bolt.adapter.aws_lambda import SlackRequestHandler
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
-from const import (
-    CHAT_UPDATE_INTERVAL_SEC,
-    OPENAI_API_MODEL,
-    OPENAI_API_TEMPERATURE,
-    MOMENTO_CACHE,
-    MOMENTO_TTL,
-)
+from const import (CHAT_UPDATE_INTERVAL_SEC, MOMENTO_CACHE, MOMENTO_TTL,
+                   OPENAI_API_MODEL, OPENAI_API_TEMPERATURE)
 
 load_dotenv()
 
