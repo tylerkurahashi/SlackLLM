@@ -117,7 +117,7 @@ def handle_mention(event, say):
         id_ts, MOMENTO_CACHE, timedelta(hours=int(MOMENTO_TTL))
     )
 
-    messages = [SystemMessage(conten="You are a good assistant.")]
+    messages = [SystemMessage(content="You are a good assistant.")]
     messages.extend(history.messages)
     messages.append(HumanMessage(content=message))
 

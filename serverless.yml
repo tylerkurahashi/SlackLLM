@@ -27,7 +27,7 @@ functions:
   app:
     name: SlackLLM-${sls:stage}-app
     handler: app.handler
-    runtime: python3.8
+    runtime: python3.10
     memorySize: 512
     timeout: 900
     url: true
